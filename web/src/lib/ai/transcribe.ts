@@ -6,7 +6,7 @@ import { openai } from '@/lib/ai/client'
 
 export async function transcribe(blob: Blob) {
   const buffer = await blob.arrayBuffer()
-  const filePath = path.resolve('./src/assets/gen/request.webm')
+  const filePath = path.resolve('./public/gen/request.webm')
   fs.writeFileSync(filePath, Buffer.from(buffer))
 
   const file = fs.createReadStream(filePath)

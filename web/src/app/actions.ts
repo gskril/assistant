@@ -14,14 +14,12 @@ export async function submitAudio(
   prevDate: any,
   formData: FormData
 ): Promise<ActionResponse> {
-  console.log('action triggered')
+  const id = new Date().getTime()
   const blob = formData.get('audio') as Blob
-  console.log(blob)
-
   const transcript = await ai.transcribe(blob)
-
-  const reply = 'This is a test message from OpenAI text to speech API.'
-  const mp3 = await ai.speak(reply)
+  const aiResponse = await ai.addUserThreadItem(transcript.text)
+  const reply = aiResponse.toString()
+  const mp3 = await ai.speak(reply, id)
 
   return {
     transcript: transcript.text,

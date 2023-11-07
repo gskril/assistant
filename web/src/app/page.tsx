@@ -28,8 +28,6 @@ export default function Home() {
   const [audioData, setAudioData] = useState<AudioData | null>(null)
 
   const handleRecordClick = async () => {
-    formData.append('test', 'hi')
-
     try {
       const audioStream = await navigator.mediaDevices.getUserMedia({
         audio: true,
@@ -75,6 +73,7 @@ export default function Home() {
     }
   }
 
+  // add the audio to the form data when it's available
   useEffect(() => {
     if (audioData) {
       formData.append('audio', audioData.blob)
@@ -82,9 +81,18 @@ export default function Home() {
   }, [audioData])
 
   const [isFormPending, setIsFormPending] = useState(false)
-  const [state, handleSubmitAudio] = useFormState(submitAudio, initialState)
+  const [formState, handleSubmitAudio] = useFormState(submitAudio, initialState)
 
-  console.log(isFormPending, state)
+  useEffect(() => {
+    console.log(formState)
+
+    if (formState.response.filePath && !isFormPending) {
+      // load the audio file and play it at 1.5x speed
+      const audio = new Audio(formState.response.filePath)
+      audio.playbackRate = 1.5
+      audio.play()
+    }
+  }, [isFormPending])
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-6">
