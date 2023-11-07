@@ -1,34 +1,33 @@
 'use server'
 
-import fs from 'fs'
-import OpenAI from 'openai'
-import { Uploadable } from 'openai/uploads'
-import path from 'path'
+import * as ai from '@/lib/ai'
 
-export async function submitAudio(formData: FormData) {
-  const blob = formData.get('audio') as Blob
-  const transcript = await transcribe(blob)
-  console.log(transcript)
-
-  return transcript
+export type ActionResponse = {
+  transcript: string
+  response: {
+    text: string
+    filePath: string
+  }
 }
 
-async function transcribe(blob: Blob) {
-  const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  })
+export async function submitAudio(
+  prevDate: any,
+  formData: FormData
+): Promise<ActionResponse> {
+  console.log('action triggered')
+  const blob = formData.get('audio') as Blob
+  console.log(blob)
 
-  const buffer = await blob.arrayBuffer()
-  const filePath = path.resolve('./src/assets/recording.webm')
-  fs.writeFileSync(filePath, Buffer.from(buffer))
+  const transcript = await ai.transcribe(blob)
 
-  const file = fs.createReadStream(filePath)
+  const reply = 'This is a test message from OpenAI text to speech API.'
+  const mp3 = await ai.speak(reply)
 
-  const transcript = await openai.audio.transcriptions.create({
-    file: file as Uploadable,
-    model: 'whisper-1',
-    language: 'en',
-  })
-
-  return transcript
+  return {
+    transcript: transcript.text,
+    response: {
+      text: reply,
+      filePath: mp3,
+    },
+  }
 }
