@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useFormState } from 'react-dom'
+import { useFormState, useFormStatus } from 'react-dom'
 
 import { ActionResponse, submitAudio } from '@/app/actions'
 import { Button } from '@/components/ui/button'
@@ -63,6 +63,7 @@ export default function Home() {
     ) {
       mediaRecorderRef.current.stop()
       setIsRecording(false)
+      setIsFormPending(true)
 
       // wait 100ms until the audio data is set
       await new Promise((resolve) => setTimeout(resolve, 100))
@@ -76,13 +77,14 @@ export default function Home() {
 
   useEffect(() => {
     if (audioData) {
-      console.log('audioData changing')
       formData.append('audio', audioData.blob)
     }
   }, [audioData])
 
+  const [isFormPending, setIsFormPending] = useState(false)
   const [state, handleSubmitAudio] = useFormState(submitAudio, initialState)
-  console.log(state)
+
+  console.log(isFormPending, state)
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-6">
@@ -93,20 +95,53 @@ export default function Home() {
         action={() => handleSubmitAudio(formData)}
         ref={formRef}
       >
+        <p className={isFormPending ? 'block' : 'hidden'}>Loading</p>
+
         <Button
           type="button"
           disabled={isRecording}
           onClick={handleRecordClick}
+          className={isRecording || isFormPending ? 'hidden' : ''}
         >
           Start Recording
         </Button>
 
-        <Button type="button" disabled={!isRecording} onClick={handleStopClick}>
-          Stop Recording
-        </Button>
+        <SubmitButton
+          isRecording={isRecording}
+          setIsPending={setIsFormPending}
+          handleStopClick={handleStopClick}
+          className={!isRecording || isFormPending ? 'hidden' : ''}
+        />
       </form>
-
       <div />
     </main>
+  )
+}
+
+function SubmitButton({
+  isRecording,
+  setIsPending,
+  handleStopClick,
+  ...props
+}: React.ComponentProps<typeof Button> & {
+  isRecording: boolean
+  setIsPending: (isPending: boolean) => void
+  handleStopClick: () => void
+}) {
+  const { pending } = useFormStatus()
+
+  // hoist the pending state up to the parent
+  useEffect(() => setIsPending(pending), [pending])
+
+  return (
+    <Button
+      type="button"
+      disabled={!isRecording}
+      aria-disabled={pending}
+      onClick={handleStopClick}
+      {...props}
+    >
+      Stop Recording
+    </Button>
   )
 }
