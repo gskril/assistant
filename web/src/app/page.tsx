@@ -95,7 +95,7 @@ export default function Home() {
   }, [isFormPending])
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-6">
+    <main className="flex min-h-screen flex-col items-center justify-between bg-gray-950 p-6 text-gray-50">
       <div />
 
       <form
@@ -103,23 +103,31 @@ export default function Home() {
         action={() => handleSubmitAudio(formData)}
         ref={formRef}
       >
-        <p className={isFormPending ? 'block' : 'hidden'}>Loading</p>
-
-        <Button
-          type="button"
-          disabled={isRecording}
-          onClick={handleRecordClick}
-          className={isRecording || isFormPending ? 'hidden' : ''}
+        <div
+          data-state={
+            isFormPending ? 'pending' : isRecording ? 'recording' : 'idle'
+          }
+          className="relative h-16 w-16 rounded-full border-4 border-gray-50 p-1 after:pointer-events-none after:absolute after:left-[50%] after:top-[50%] after:block after:h-12 after:w-12 after:translate-x-[-50%] after:translate-y-[-50%] after:rounded-[2rem] after:bg-red-500 after:transition-all after:duration-200 after:ease-in-out after:content-[''] after:data-[state=pending]:scale-[60%] after:data-[state=recording]:scale-[60%] after:data-[state=pending]:animate-pulse after:data-[state=pending]:rounded-xl after:data-[state=recording]:rounded-xl"
         >
-          Start Recording
-        </Button>
+          <button
+            type="button"
+            disabled={isRecording}
+            aria-disabled={isRecording}
+            onClick={handleRecordClick}
+            className={
+              isRecording || isFormPending ? 'hidden' : 'h-full w-full'
+            }
+          />
 
-        <SubmitButton
-          isRecording={isRecording}
-          setIsPending={setIsFormPending}
-          handleStopClick={handleStopClick}
-          className={!isRecording || isFormPending ? 'hidden' : ''}
-        />
+          <SubmitButton
+            isRecording={isRecording}
+            setIsPending={setIsFormPending}
+            handleStopClick={handleStopClick}
+            className={
+              !isRecording || isFormPending ? 'hidden' : 'h-full w-full'
+            }
+          />
+        </div>
       </form>
       <div />
     </main>
@@ -142,14 +150,12 @@ function SubmitButton({
   useEffect(() => setIsPending(pending), [pending])
 
   return (
-    <Button
+    <button
       type="button"
-      disabled={!isRecording}
-      aria-disabled={pending}
+      disabled={!isRecording || pending}
+      aria-disabled={!isRecording || pending}
       onClick={handleStopClick}
       {...props}
-    >
-      Stop Recording
-    </Button>
+    />
   )
 }
