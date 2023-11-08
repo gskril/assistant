@@ -6,7 +6,7 @@ import { openai } from '@/lib/ai/client'
 
 export async function speak(text: string, id: number) {
   const mp3 = await openai.audio.speech.create({
-    model: 'tts-1-hd',
+    model: 'tts-1',
     voice: 'nova',
     input: text,
   })

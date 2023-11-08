@@ -89,7 +89,7 @@ export default function Home() {
     if (formState.response.filePath && !isFormPending) {
       // load the audio file and play it at 1.5x speed
       const audio = new Audio(formState.response.filePath)
-      audio.playbackRate = 1.5
+      audio.playbackRate = 1.35
       audio.play()
     }
   }, [isFormPending])
@@ -107,7 +107,7 @@ export default function Home() {
           data-state={
             isFormPending ? 'pending' : isRecording ? 'recording' : 'idle'
           }
-          className="relative h-16 w-16 rounded-full border-4 border-gray-50 p-1 after:pointer-events-none after:absolute after:left-[50%] after:top-[50%] after:block after:h-12 after:w-12 after:translate-x-[-50%] after:translate-y-[-50%] after:rounded-[2rem] after:bg-red-500 after:transition-all after:duration-200 after:ease-in-out after:content-[''] after:data-[state=pending]:scale-[60%] after:data-[state=recording]:scale-[60%] after:data-[state=pending]:animate-pulse after:data-[state=pending]:rounded-xl after:data-[state=recording]:rounded-xl"
+          className="relative h-16 w-16 rounded-full border-4 border-gray-50 p-1 after:pointer-events-none after:absolute after:left-[50%] after:top-[50%] after:block after:h-12 after:w-12 after:translate-x-[-50%] after:translate-y-[-50%] after:rounded-[2rem] after:bg-red-500 after:transition-all after:duration-200 after:ease-in-out after:content-[''] after:data-[state=pending]:scale-[60%] after:data-[state=recording]:scale-[60%] after:data-[state=pending]:animate-pulse after:data-[state=pending]:rounded-xl after:data-[state=recording]:rounded-xl after:data-[state=pending]:bg-red-900"
         >
           <button
             type="button"

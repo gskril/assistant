@@ -1,7 +1,7 @@
 import { openai } from './client'
+import { availableFunctions, get_stock_price } from './functions'
 
-const { assistants, threads } = openai.beta
-
+const { threads } = openai.beta
 const assistantId = 'asst_LsNvu8muCe9S7VfmZsJcW9y5'
 const threadId = 'thread_BYGDCKWRQiJhgACL7R5ZDH8i'
 
@@ -17,31 +17,60 @@ export async function addUserThreadItem(message: string) {
 
   const pendingStatuses = ['in_progress', 'queued']
   while (pendingStatuses.includes(run.status)) {
-    console.log(run.status)
     await new Promise((resolve) => setTimeout(resolve, 1000))
     run = await threads.runs.retrieve(threadId, run.id)
+    console.log('response to message:', run.status)
   }
 
   const response = await threads.runs.retrieve(threadId, run.id)
 
   if (response.required_action) {
-    return 'Some action is required'
+    // TODO: figure out why this always returns one action even if there are multiple
+    const actions = response.required_action.submit_tool_outputs.tool_calls
 
-    // // TODO: figure out how to handle multiple actions
-    // const actions = response.required_action.submit_tool_outputs.tool_calls
+    const answers: {
+      actionId: string
+      data: any
+    }[] = []
 
-    // await threads.runs.submitToolOutputs(threadId, run.id, {
-    //   tool_outputs: [
-    //     {
-    //       tool_call_id: actions[0].id,
-    //       output: JSON.stringify({
-    //         temp: 68,
-    //       }),
-    //     },
-    //   ],
-    // })
+    for (const action of actions) {
+      // check if the action.function.name is in availableFunctions
+      const relevantFunction = availableFunctions.find(
+        (fn) => fn.name === action.function.name
+      )
+
+      if (relevantFunction) {
+        const answer = await relevantFunction(
+          JSON.parse(action.function.arguments)
+        )
+
+        answers.push({
+          actionId: action.id,
+          data: answer,
+        })
+      }
+    }
+
+    // Submit the function outputs
+    await threads.runs.submitToolOutputs(threadId, run.id, {
+      tool_outputs: answers.map((answer) => {
+        return {
+          tool_call_id: answer.actionId,
+          output: JSON.stringify(answer.data),
+        }
+      }),
+    })
+
+    // Wait for a response to be generated using the function outputs
+    run = await threads.runs.retrieve(threadId, run.id)
+    while (pendingStatuses.includes(run.status)) {
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      run = await threads.runs.retrieve(threadId, run.id)
+      console.log('response to function call:', run.status)
+    }
   }
 
+  // TODO: figure out why this returns the 2nd to last message when there is a function call
   const messages = await threads.messages.list(threadId)
 
   // find the first message that is from the AI
