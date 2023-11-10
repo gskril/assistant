@@ -18,13 +18,12 @@ export async function submitAudio(
   const blob = formData.get('audio') as Blob
   const transcript = await ai.transcribe(blob)
   const aiResponse = await ai.addUserThreadItem(transcript.text)
-  const reply = aiResponse.toString()
-  const mp3 = await ai.speak(reply, id)
+  const mp3 = await ai.speak(aiResponse, id)
 
   return {
     transcript: transcript.text,
     response: {
-      text: reply,
+      text: aiResponse,
       filePath: mp3,
     },
   }
