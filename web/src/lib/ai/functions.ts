@@ -28,5 +28,4 @@ const functions: AssistantCreateParams.AssistantToolsFunction.Function[] = [
       required: ['symbol'],
     },
   },
-  {},
 ]
