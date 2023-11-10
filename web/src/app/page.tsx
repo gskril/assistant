@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from 'react'
 import { useFormState, useFormStatus } from 'react-dom'
 
 import { ActionResponse, submitAudio } from '@/app/actions'
-import { Button } from '@/components/ui/button'
 
 type AudioData = {
   url: string
@@ -139,7 +138,7 @@ function SubmitButton({
   setIsPending,
   handleStopClick,
   ...props
-}: React.ComponentProps<typeof Button> & {
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & {
   isRecording: boolean
   setIsPending: (isPending: boolean) => void
   handleStopClick: () => void
