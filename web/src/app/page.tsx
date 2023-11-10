@@ -6,11 +6,6 @@ import { useFormState, useFormStatus } from 'react-dom'
 
 import { ActionResponse, submitAudio } from '@/app/actions'
 
-type AudioData = {
-  url: string
-  blob: Blob
-}
-
 const initialState: ActionResponse = {
   transcript: '',
   response: {
@@ -25,7 +20,7 @@ export default function Home() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
 
   const [isRecording, setIsRecording] = useState(false)
-  const [audioData, setAudioData] = useState<AudioData | null>(null)
+  const [audioData, setAudioData] = useState<Blob | null>(null)
 
   const handleRecordClick = async () => {
     try {
@@ -43,8 +38,7 @@ export default function Home() {
 
       mediaRecorderRef.current.addEventListener('stop', () => {
         const audioBlob = new Blob(chunks, { type: 'audio/webm' })
-        const audioUrl = URL.createObjectURL(audioBlob)
-        setAudioData({ url: audioUrl, blob: audioBlob })
+        setAudioData(audioBlob)
       })
 
       mediaRecorderRef.current.start()
@@ -76,7 +70,7 @@ export default function Home() {
   // add the audio to the form data when it's available
   useEffect(() => {
     if (audioData) {
-      formData.append('audio', audioData.blob)
+      formData.append('audio', audioData)
     }
   }, [audioData])
 
