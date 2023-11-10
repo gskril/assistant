@@ -1,9 +1,13 @@
 import { openai } from './client'
-import { availableFunctions, get_stock_price } from './functions'
+import { availableFunctions } from './functions'
 
 const { threads } = openai.beta
-const assistantId = 'asst_LsNvu8muCe9S7VfmZsJcW9y5'
-const threadId = 'thread_BYGDCKWRQiJhgACL7R5ZDH8i'
+const assistantId = process.env.ASSISTANT_ID || ''
+const threadId = process.env.THREAD_ID || ''
+
+if (!assistantId || !threadId) {
+  throw new Error('ASSISTANT_ID and THREAD_ID must be set')
+}
 
 export async function addUserThreadItem(message: string) {
   await threads.messages.create(threadId, {
