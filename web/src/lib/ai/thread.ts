@@ -70,10 +70,9 @@ export async function addUserThreadItem(message: string) {
     }
   }
 
-  // TODO: figure out why this returns the 2nd to last message when there is a function call
   const messages = await threads.messages.list(threadId)
 
-  // find the first message that is from the AI
+  // find the most recent message from the AI
   const latestRelevantMessage = messages.data.find(
     (message) => message.role === 'assistant'
   )
