@@ -11,12 +11,8 @@ export async function speak(text: string, id: number) {
     input: text,
   })
 
-  const publicPath = `/gen/response-${id}.mp3`
-  const filePath = path.resolve(`./public${publicPath}`)
   const buffer = Buffer.from(await mp3.arrayBuffer())
-  fs.writeFileSync(filePath, buffer)
+  const base64 = buffer.toString('base64')
 
-  revalidatePath(publicPath)
-
-  return publicPath
+  return 'data:video/webm;base64,' + base64
 }
